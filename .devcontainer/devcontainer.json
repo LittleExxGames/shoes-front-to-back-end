@@ -7,9 +7,7 @@
     "updateContentCommand": "npm install",
     "onCreateCommand": "sh .devcontainer/on-create.sh",
     "postCreateCommand": "",
-    "postAttachCommand": {
-      "server": "npm run dev"
-    },
+    "postAttachCommand": "",
     "forwardPorts": [
       3000,8080
     ],
