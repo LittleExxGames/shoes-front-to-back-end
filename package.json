@@ -1,0 +1,20 @@
+{
+  "name": "boxes-api-littleexxgames",
+  "version": "1.0.0",
+  "description": "this is just a template so the students can be sure their api repository is available to the teacher for grading, and also so they can run the redis-stack database even on windows.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2",
+    "redis": "^4.6.13"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
