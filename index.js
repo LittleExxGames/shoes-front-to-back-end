@@ -2,14 +2,19 @@
 
 const redis = require('redis');
 const express = require('express');
+const cors = require('cors');
 
 const redisClient = redis.createClient();
 redisClient.on('error', (err) => console.log('Redis Client Error', err));
-redisClient.connect()
-const app = express()
-const port = 3000
+redisClient.connect();
+const app = express();
+const port = 3001;
 
+const options = {
+    origin: 'http://localhost:3000'
+};
 
+app.use(cors(options));
 
 
 // Handle errors (optional)
@@ -34,19 +39,20 @@ main().catch(console.error);
 
 app.get('/', (req, res) => {
     res.send('Hello World!')
-  })
+    });
   
-  app.get('/shoes', async (req, res) => {
-      const shoey = await redisClient.get('shoe:1')
-      res.send(shoey)
-    })
-    app.post('/shoes', async (req, res) => {
-        console.log('POST /shoes')
-        const shoey = await redisClient.set('shoe:4', JSON.stringify({ shoeId: 4, brand: 'IDK', model: 'The Deep End', size: 12 }))
-        res.send(shoey)
-
-      })
+app.get('/shoes', async (req, res) => {
+    let shoey = await redisClient.get('shoe:1')
+    //res.send(shoey)
+    res.json(JSON.parse(shoey).model)
+    });
+    
+app.post('/shoes', async (req, res) => {
+    console.log('POST /shoes')
+    const shoey = await redisClient.set('shoe:4', JSON.stringify({ shoeId: 4, brand: 'IDK', model: 'The Deep End', size: 12 }))
+    res.send(shoey)
+    });
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
-  })
+  });
