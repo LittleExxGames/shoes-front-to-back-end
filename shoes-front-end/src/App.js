@@ -15,6 +15,7 @@ useEffect(() => {
   .then(data => {
     setShoes([...shoes, ...data]);
     console.log(data);
+    //for commit
   });
 }, []);
 
