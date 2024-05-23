@@ -11,3 +11,19 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.Retrieve {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 15px;
+}
+
+input[type="text"] {
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  font-size: 20px;
+  color: #a02121;
+  padding: 15px;
+  border-radius: 7px;
+  border: 1px solid #ccc;
+}
