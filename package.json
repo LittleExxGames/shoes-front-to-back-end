@@ -11,9 +11,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@node-redis/search": "^1.0.5",
     "cors": "^2.8.5",
     "express": "^4.19.2",
-    "redis": "^4.6.13"
+    "redis": "^4.6.14"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
