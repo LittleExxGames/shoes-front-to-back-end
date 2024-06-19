@@ -103,7 +103,19 @@ app.get('/search', async (req, res) => {
     }
 
 });
-
+app.get('/shoes/:shoeId', async (req, res) => {
+    const shoeId = req.params.shoeId;
+    try {
+        const shoe = await redisClient.json.get(`shoe:${shoeId}`);
+        if (shoe) {
+            res.json({ success: true, data: shoe });
+        } else {
+            res.status(404).json({ success: false, message: 'Shoe not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error performing search' });
+    }
+});
 app.get('/shoes', async (req, res) => {
     let shoes = [];
     try {
