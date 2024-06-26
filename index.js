@@ -1,17 +1,17 @@
 
 
 const redis = require('redis');
-const redisClient = redis.createClient(); //({host: 'your-redis-host.com',port: 1234});
-const SchemaFieldTypes = redis.SchemaFieldTypes;
-const AggregateGroupByReducers = redis.AggregateGroupByReducers;
-const AggregateSteps = redis.AggregateSteps;
+const host = 'MadeYouLook.com';
+const port = 3001;
+const redisClient = redis.createClient({
+    url: `redis://${host}:${port}`
+});
 const express = require('express');
 const cors = require('cors');
 
 redisClient.on('error', (err) => console.log('Redis Client Error', err));
 redisClient.connect();
 const app = express();
-const port = 3001;
 
 const options = {
     origin: 'http://localhost:3000'

@@ -1,6 +1,15 @@
 version: '3.8'
 services:
 
+  app:
+    build: .
+    ports:
+      - "3001:3001"
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
   redis:
     image: redis/redis-stack-server:latest
     restart: unless-stopped
