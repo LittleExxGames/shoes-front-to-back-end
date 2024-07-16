@@ -1,11 +1,12 @@
 
 
 const redis = require('redis');
-const host = 'MadeYouLook.com';
-const port = 3001;
+const host = 'localhost';
+const port = 6379;
 const redisClient = redis.createClient({
     url: `redis://${host}:${port}`
 });
+//const redisClient = redis.createClient();
 const express = require('express');
 const cors = require('cors');
 
@@ -119,13 +120,67 @@ app.get('/shoes/:shoeId', async (req, res) => {
 app.get('/shoes', async (req, res) => {
     let shoes = [];
     try {
-        for (i = 1; i < 4; i++) {
-            const shoe = await redisClient.json.get(`shoe:${i}`);
-            if (shoe) {
+        let start = parseInt(req.query.start, 10) || 1;
+        let limit = parseInt(req.query.limit, 10);
+        start = Math.max(start, 1);
+        if (!limit) 
+        {
+            let count = start;
+            while (true)
+            {
+                const shoe = await redisClient.json.get(`shoe:${count}`);
+                if (shoe) 
+                {
                 shoes.push(shoe);
+                }
+                else
+                {
+                    res.json({ success: true, data: shoes });
+                    return;
+                }
+            count++;
             }
         }
-        res.json({ success: true, data: shoes });
+        else
+        {
+            limit = Math.max(limit, 1);
+            if (start)
+            {
+                for (let i = start - 1; i < start + limit - 1; i++)
+                {
+                    const shoe = await redisClient.json.get(`shoe:${i}`);
+                    if (shoe) 
+                    {
+                        shoes.push(shoe);
+                    }
+                    else
+                    {
+                        res.json({ success: true, data: shoes });
+                        return;
+                    }
+                }
+                res.json({ success: true, data: shoes });
+                return;
+            }
+            else
+            {
+                for (i = 0; i < limit - 1; i++) 
+                {
+                    const shoe = await redisClient.json.get(`shoe:${i}`);
+                    if (shoe) 
+                    {
+                        shoes.push(shoe);
+                    }
+                    else
+                    {
+                        res.json({ success: true, data: shoes });
+                        return;
+                    }
+                }
+                res.json({ success: true, data: shoes });
+                    return;
+            }
+        }
     }
     catch (error) {
         res.status(500).json({ success: false, message: 'Error performing search' });
@@ -141,6 +196,6 @@ app.post('/shoes', async (req, res) => {
     res.json(shoey)
 });
 
-app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
+app.listen(3001, () => {
+    console.log(`Example app listening on port ${3001}`);
 });

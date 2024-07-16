@@ -1,0 +1,172 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: AWS Fargate with VPC, ALB, and ECR
+Parameters:
+  ImageTag:
+    Description: tag name for image
+    Type: String
+    Default: helloWorld
+Globals:
+  Function:
+    Timeout: 3
+    MemorySize: 128
+Resources:
+  VPC:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: VPC\template.yaml
+    Metadata:
+      SamResourceId: VPC
+  ECRRepo:
+    Type: AWS::ECR::Repository
+    Properties:
+      EmptyOnDelete: true
+  Cluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      CapacityProviders:
+      - FARGATE
+  Service:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: boxes-api
+      Cluster:
+        Ref: Cluster
+      LaunchType: FARGATE
+      EnableExecuteCommand: true
+      HealthCheckGracePeriodSeconds: 5
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets:
+          - Fn::GetAtt:
+            - VPC
+            - Outputs.PublicSubnet1
+          - Fn::GetAtt:
+            - VPC
+            - Outputs.PublicSubnet2
+          SecurityGroups:
+          - Fn::GetAtt:
+            - VPC
+            - Outputs.SG
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 50
+      DesiredCount: 1
+      TaskDefinition:
+        Ref: TaskDefinition
+      LoadBalancers:
+      - ContainerName: boxes-api
+        ContainerPort: 3001
+        TargetGroupArn:
+          Fn::GetAtt:
+          - VPC
+          - Outputs.LB
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: boxes-api
+      Cpu: 1024
+      Memory: 4096
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+      - FARGATE
+      ExecutionRoleArn:
+        Fn::GetAtt:
+        - ECSTaskExecutionRole
+        - Arn
+      TaskRoleArn:
+        Ref: ECSTaskRole
+      RuntimePlatform:
+        CpuArchitecture: X86_64
+      ContainerDefinitions:
+      - Name: boxes-api
+        Cpu: 1024
+        Memory: 4096
+        Image:
+          Fn::Sub:
+          - ${RepoUrl}:${ImageTag}
+          - RepoUrl:
+              Fn::GetAtt:
+              - ECRRepo
+              - RepositoryUri
+        PortMappings:
+        - ContainerPort: 3001
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            mode: non-blocking
+            max-buffer-size: 25m
+            awslogs-group:
+              Ref: LogGroup
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: containerlog
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Sub: /fargatelogs-${AWS::StackName}
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ecs-tasks.amazonaws.com
+          Action:
+          - sts:AssumeRole
+          Condition:
+            ArnLike:
+              aws:SourceArn:
+                Fn::Sub: arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:*
+            StringEquals:
+              aws:SourceAccount:
+                Ref: AWS::AccountId
+      Path: /
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+  ECSTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ecs-tasks.amazonaws.com
+          Action:
+          - sts:AssumeRole
+          Condition:
+            ArnLike:
+              aws:SourceArn:
+                Fn::Sub: arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:*
+            StringEquals:
+              aws:SourceAccount:
+                Ref: AWS::AccountId
+      Path: /
+Outputs:
+  ClusterName:
+    Description: Amazon ECS Cluster Name
+    Value:
+      Ref: Cluster
+  ServiceName:
+    Description: Amazon ECS Service Name
+    Value:
+      Fn::GetAtt:
+      - Service
+      - Name
+  FQDN:
+    Description: URL for your application
+    Value:
+      Fn::GetAtt:
+      - VPC
+      - Outputs.PublicLBFQDN
+  RepositoryUrl:
+    Description: URL of the ECR repo
+    Value:
+      Fn::GetAtt:
+      - ECRRepo
+      - RepositoryUri
