@@ -46,7 +46,7 @@ Resources:
       DeploymentConfiguration:
         MaximumPercent: 200
         MinimumHealthyPercent: 50
-      DesiredCount: 1
+      DesiredCount: 0
       TaskDefinition: !Ref "TaskDefinition"
       LoadBalancers:
         - ContainerName: "boxes-api"

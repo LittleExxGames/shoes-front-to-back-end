@@ -2,11 +2,11 @@
   "name": "boxes-api-littleexxgames",
   "version": "1.0.0",
   "description": "this is just a template so the students can be sure their api repository is available to the teacher for grading, and also so they can run the redis-stack database even on windows.",
-  "main": "index.js",
+  "main": "helloWorld.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "node helloWorld.js",
+    "dev": "nodemon helloWorld.js"
   },
   "author": "",
   "license": "ISC",
