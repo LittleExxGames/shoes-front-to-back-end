@@ -107,6 +107,16 @@ app.get('/shoes', async (req, res) => {
     }
 });
 
+app.post('/shoes', async (req, res) => {
+    console.log('POST /shoes')
+    const shoeData = req.body;
+    const shoeId = await redisClient.incr('lastShoeId');
+    shoeData.shoeId = shoeId;
+    const shoey = await redisClient.json.set(`shoe:${shoeId}`, '.', shoeData);
+    res.json(shoey)
+});
+
+
 
 app.listen(3001, () => {
     console.log(`Example app listening on port ${3001}`);
