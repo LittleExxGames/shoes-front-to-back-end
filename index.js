@@ -108,16 +108,14 @@ app.get('/shoes', async (req, res) => {
 });
 
 app.post('/shoes', async (req, res) => {
-
-    const shoeData = {
-        shoeId: 100,
-        brand: "Nike",
-        model: "Air Max",
-        size: 9
-    };
-    const shoey = await redisClient.json.set(`shoe:100`, '.', shoeData);
+    console.log('POST /shoes')
+    const shoeData = req.body;
+    const shoeId = await redisClient.incr('lastShoeId');
+    shoeData.shoeId = shoeId;
+    const shoey = await redisClient.json.set(`shoe:${shoeId}`, '.', shoeData);
     res.json(shoey)
 });
+
 
 
 app.listen(3001, () => {
