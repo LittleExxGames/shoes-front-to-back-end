@@ -22,6 +22,7 @@ function App() {
   }]
 
   useEffect(() => {
+    //fetch(`http://localhost:3001/shoes?start=${1}&limit=${4}`)
     fetch(`http://localhost:3001/shoes`)
       .then(res => res.json())
       .then(response => {
