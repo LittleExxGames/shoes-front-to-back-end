@@ -126,7 +126,7 @@ app.get('/shoes', async (req, res) => {
         start = Math.max(start, 1);
         if (!limit) 
         {
-            let count = start;
+            let count = start - 1;
             while (true)
             {
                 const shoe = await redisClient.json.get(`shoe:${count}`);
@@ -147,7 +147,8 @@ app.get('/shoes', async (req, res) => {
             limit = Math.max(limit, 1);
             if (start)
             {
-                for (let i = start - 1; i < start + limit - 1; i++)
+                let to = limit - 1 + start - 1;
+                for (let i = start - 1; i <= to; i++)
                 {
                     const shoe = await redisClient.json.get(`shoe:${i}`);
                     if (shoe) 
@@ -165,7 +166,7 @@ app.get('/shoes', async (req, res) => {
             }
             else
             {
-                for (i = 0; i < limit - 1; i++) 
+                for (i = 0; i <= limit - 1; i++) 
                 {
                     const shoe = await redisClient.json.get(`shoe:${i}`);
                     if (shoe) 
